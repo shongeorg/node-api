@@ -12,12 +12,33 @@ const data = {
   ],
   faker: `https://node-api-rust-nine.vercel.app/faker`,
 };
-const toJson = (data) => JSON.stringify(data);
+const toJson = (data) => JSON.stringify(data, null, 2);
+
+const indexControler = () => {
+  return toJson(data);
+};
+const fakerControler = async () => {
+  const query = {
+    uuid: "uuid",
+    name: "firstName",
+    email: "companyEmail",
+    birthday: "date",
+    image: "image",
+    status: "emoji",
+    phone: "phone",
+    address: "streetAddress",
+    wesite: "wesite",
+    url: "url",
+  };
+  const params = new URLSearchParams(query).toString();
+  const res = await fetch(`https://fakerapi.it/api/v2/custom?${params}`).then(
+    (d) => d.json()
+  );
+  return toJson(res.data);
+};
 
 const routes = {
-  "/": async () => {
-    return toJson(data);
-  },
+  "/": indexControler,
   posts: async (id) => {
     const post = data.posts.find((x) => x.id === +id);
     return toJson(post || {});
@@ -32,15 +53,10 @@ const routes = {
   users: async () => {
     return toJson(data.users || []);
   },
-  faker: async () => {
-    const res = await fetch(
-      `https://fakerapi.it/api/v2/custom?_quantity=10&_locale=en_US&uuid=uuid&name=firstName&email=companyEmail&birthday=date&image=image&status=emoji&phone=phone&address=streetAddress&wesite=website&url=url`
-    ).then((d) => d.json());
-    return toJson(res.data);
-  },
+  faker: fakerControler,
 };
 
-const getContent = async (pathname) => {
+const getRoute = async (pathname) => {
   const [, route, param] = pathname.split("/");
 
   if (route === "" && routes["/"]) {
@@ -57,9 +73,9 @@ const getContent = async (pathname) => {
 const server = createServer(async (req, res) => {
   const url = req.url ? new URL(req.url, `http://${req.headers.host}`) : null;
   try {
-    const content = await getContent(url?.pathname || "/");
+    const route = await getRoute(url?.pathname || "/");
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(content);
+    res.end(route);
   } catch (error) {
     if (error.message === "404") {
       res.writeHead(404, { "Content-Type": "text/html" });
