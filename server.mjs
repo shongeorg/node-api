@@ -10,6 +10,7 @@ const data = {
     { name: "John", id: 1 },
     { name: "Jane", id: 2 },
   ],
+  faker: `https://node-api-rust-nine.vercel.app/faker`,
 };
 const toJson = (data) => JSON.stringify(data);
 
@@ -21,9 +22,21 @@ const routes = {
     const post = data.posts.find((x) => x.id === +id);
     return toJson(post || {});
   },
+  posts: async () => {
+    return toJson(data.posts || []);
+  },
   users: async (id) => {
     const user = data.users.find((x) => x.id === +id);
     return toJson(user || {});
+  },
+  users: async () => {
+    return toJson(data.users || []);
+  },
+  faker: async () => {
+    const res = await fetch(
+      `https://fakerapi.it/api/v2/custom?_quantity=10&_locale=en_US&uuid=uuid&name=firstName&email=companyEmail&birthday=date&image=image&status=emoji&phone=phone&address=streetAddress&wesite=website&url=url`
+    ).then((d) => d.json());
+    return toJson(res);
   },
 };
 
