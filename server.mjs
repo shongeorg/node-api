@@ -36,7 +36,7 @@ const routes = {
     const res = await fetch(
       `https://fakerapi.it/api/v2/custom?_quantity=10&_locale=en_US&uuid=uuid&name=firstName&email=companyEmail&birthday=date&image=image&status=emoji&phone=phone&address=streetAddress&wesite=website&url=url`
     ).then((d) => d.json());
-    return toJson(res);
+    return toJson(res.data);
   },
 };
 
