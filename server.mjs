@@ -6,6 +6,10 @@ const data = {
     { name: "npm", id: 2 },
     { name: "react", id: 3 },
   ],
+  users: [
+    { name: "John", id: 1 },
+    { name: "Jane", id: 2 },
+  ],
 };
 const toJson = (data) => JSON.stringify(data);
 
@@ -15,7 +19,11 @@ const routes = {
   },
   posts: async (id) => {
     const post = data.posts.find((x) => x.id === +id);
-    return toJson(post);
+    return toJson(post || {});
+  },
+  users: async (id) => {
+    const user = data.users.find((x) => x.id === +id);
+    return toJson(user || {});
   },
 };
 
