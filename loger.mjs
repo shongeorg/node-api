@@ -47,3 +47,5 @@ export const loger = (req, res, method) => {
     originalEnd.call(res, chunk);
   };
 };
+
+export const toJson = (data) => JSON.stringify(data, null, 2);
