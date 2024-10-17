@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { loger } from "./loger.mjs";
 
 const data = {
   posts: [
@@ -39,14 +40,14 @@ const fakerControler = async () => {
 
 const routes = {
   "/": indexControler,
-  posts: async (id) => {
+  "posts/:id": async (id) => {
     const post = data.posts.find((x) => x.id === +id);
     return toJson(post || {});
   },
   posts: async () => {
     return toJson(data.posts || []);
   },
-  users: async (id) => {
+  "users/:id": async (id) => {
     const user = data.users.find((x) => x.id === +id);
     return toJson(user || {});
   },
@@ -63,6 +64,10 @@ const getRoute = async (pathname) => {
     return await routes["/"]();
   }
 
+  if (param && routes[`${route}/:id`]) {
+    return await routes[`${route}/:id`](param);
+  }
+
   if (routes[route]) {
     return await routes[route](param);
   }
@@ -72,6 +77,7 @@ const getRoute = async (pathname) => {
 
 const server = createServer(async (req, res) => {
   const url = req.url ? new URL(req.url, `http://${req.headers.host}`) : null;
+  loger(req, res, req.method);
   try {
     const route = await getRoute(url?.pathname || "/");
     res.writeHead(200, { "Content-Type": "application/json" });
