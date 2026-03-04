@@ -17,37 +17,74 @@ const getBody = (req) => {
   });
 };
 
+// Route matching with HTTP methods
+// Format: "method:path" or just "path" (defaults to GET)
+const findRoute = (method, pathname) => {
+  const methodLower = method.toLowerCase();
+
+  for (const [pattern, handler] of Object.entries(routes)) {
+    const colonIndex = pattern.indexOf(':');
+    
+    // Check if it's a method-specific route (e.g., "put:categories/:id")
+    if (colonIndex !== -1) {
+      const routeMethod = pattern.slice(0, colonIndex);
+      const routePath = pattern.slice(colonIndex + 1);
+
+      // Method-specific route (post, put, patch, delete, get)
+      if (["post", "put", "patch", "delete", "get"].includes(routeMethod)) {
+        if (routeMethod !== methodLower) continue;
+
+        // Check for param route (e.g., "categories/:id")
+        if (routePath.endsWith("/:id")) {
+          const base = routePath.slice(0, -3); // Remove "/:id"
+          if (pathname.startsWith(base)) {
+            const id = pathname.slice(base.length);
+            if (id && !id.includes("/")) {
+              return { handler, params: { id } };
+            }
+          }
+        } else if (routePath === pathname) {
+          return { handler, params: {} };
+        }
+        continue;
+      }
+    }
+
+    // Legacy GET routes (no method prefix) - only for GET requests
+    if (method === "GET") {
+      if (pattern.endsWith("/:id")) {
+        const base = pattern.slice(0, -3);
+        if (pathname.startsWith(base)) {
+          const id = pathname.slice(base.length);
+          if (id && !id.includes("/")) {
+            return { handler, params: { id } };
+          }
+        }
+      } else if (pattern === pathname) {
+        return { handler, params: {} };
+      }
+    }
+  }
+
+  return null;
+};
+
 const server = createServer(async (req, res) => {
   loger(req, res);
 
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname === "/" ? "" : url.pathname.replace(/^\/+/, "");
 
-  // Exact match (routes use keys without leading slash, "/" maps to "")
-  let handler = routes[pathname];
+  const route = findRoute(req.method, pathname);
 
-  // Param match (e.g., users/:id, posts/:id)
-  if (!handler) {
-    for (const [pattern, h] of Object.entries(routes)) {
-      const [base, param] = pattern.split("/");
-      if (param === ":id" && pathname.startsWith(base + "/")) {
-        const id = pathname.slice(base.length + 1);
-        if (id && !id.includes("/")) {
-          handler = () => h(id);
-          break;
-        }
-      }
-    }
-  }
-
-  if (handler) {
+  if (route) {
     try {
       let body = {};
       if (["POST", "PUT", "PATCH"].includes(req.method)) {
         body = await getBody(req);
       }
 
-      const result = await handler({}, body);
+      const result = await route.handler(route.params, body, req.method);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(result);
     } catch (error) {
