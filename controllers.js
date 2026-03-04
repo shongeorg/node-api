@@ -1,4 +1,4 @@
-import { toJson } from "./loger.mjs";
+import { toJson } from "./loger.js";
 
 const data = {
   posts: [
@@ -31,7 +31,7 @@ export const fakerController = async () => {
   };
   const params = new URLSearchParams(query).toString();
   const res = await fetch(`https://fakerapi.it/api/v2/custom?${params}`).then(
-    (d) => d.json()
+    (d) => d.json(),
   );
   return toJson(res.data);
 };

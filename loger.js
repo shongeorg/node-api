@@ -1,24 +1,5 @@
-import { inspect } from "node:util";
-
-export const print = (data) => {
-  let out = inspect(data, {
-    colors: true,
-    breakLength: 80,
-    depth: Infinity,
-    maxArrayLength: Infinity,
-    maxStringLength: Infinity,
-    numericSeparator: true,
-    sorted: true,
-  });
-  console.dir(out);
-};
-
-export const loger = (req, res, method) => {
-  console.log({
-    method,
-    url: req.url,
-  });
-  // print({ headers: req.headers });
+export const loger = (req, res) => {
+  console.log({ method: req.method, url: req.url });
 
   let body = [];
   req
@@ -27,7 +8,7 @@ export const loger = (req, res, method) => {
     })
     .on("end", () => {
       body = Buffer.concat(body).toString();
-      // print({ body });
+      if (body) console.log({ body });
     });
 
   const originalWrite = res.write;
@@ -43,7 +24,12 @@ export const loger = (req, res, method) => {
     if (chunk) {
       responseBody += chunk;
     }
-    // print({ responseBody });
+    try {
+      const parsed = JSON.parse(responseBody);
+      console.log({ responseBody: parsed });
+    } catch {
+      console.log({ responseBody });
+    }
     originalEnd.call(res, chunk);
   };
 };

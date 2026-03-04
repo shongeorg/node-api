@@ -2,18 +2,23 @@
   "name": "api",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.mjs",
-    "dev": "node --watch server.mjs",
-    "build": "node server.mjs",
-    "test": "jest"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build": "node server.js",
+    "test": "jest",
+    "seeds": "node ./prisma/seeds.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "jest": "^29.7.0",
-    "supertest": "^7.0.0"
+    "@faker-js/faker": "^9.5.1",
+    "prisma": "^6.4.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1"
   }
 }

@@ -3,10 +3,10 @@ import {
   indexController,
   postsController,
   usersController,
-} from "./controllers.mjs";
+} from "./controllers.js";
 
 export const routes = {
-  "/": indexController,
+  "": indexController,
   "posts/:id": postsController.getById,
   posts: postsController.getAll,
   "users/:id": usersController.getById,
