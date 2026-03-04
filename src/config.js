@@ -48,18 +48,6 @@ const config = {
   isProduction: process.env.NODE_ENV === 'production',
 };
 
-// Validate required configuration
-const requiredVars = [];
-
-if (!config.isTest) {
-  requiredVars.push('DATABASE_URL');
-}
-
-const missing = requiredVars.filter((key) => !config[key]);
-if (missing.length > 0) {
-  throw new Error(
-    `Missing required environment variables: ${missing.join(', ')}`
-  );
-}
+// No required vars - app works without DB (static routes only)
 
 export default config;

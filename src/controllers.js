@@ -43,7 +43,7 @@ export const postsController = {
   getAll: async () => {
     return toJson(data.posts || []);
   },
-  getById: async (id) => {
+  getById: async ({ id }) => {
     const post = data.posts.find((x) => x.id === +id);
     return toJson(post || {});
   },
@@ -53,7 +53,7 @@ export const usersController = {
   getAll: async () => {
     return toJson(data.users || []);
   },
-  getById: async (id) => {
+  getById: async ({ id }) => {
     const user = data.users.find((x) => x.id === +id);
     return toJson(user || {});
   },

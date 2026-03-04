@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- OpenGraph / Social Media -->
+  <meta property="og:title" content="Node.js API Tester">
+  <meta property="og:description" content="Interactive API testing interface for Node.js REST API with Prisma">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://localhost:3000">
+  <meta property="og:image" content="https://via.placeholder.com/1200x630/4F46E5/ffffff?text=Node.js+API">
+  <meta name="twitter:card" content="summary_large_image">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  
+  <title>Node.js API Tester</title>
+  
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --success: #22c55e;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --border: #475569;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .endpoint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .endpoint {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    
+    .endpoint:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+    
+    .endpoint.active {
+      border-color: var(--accent);
+      background: rgba(79, 70, 229, 0.1);
+    }
+    
+    .method {
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      min-width: 70px;
+      text-align: center;
+      margin-right: 1rem;
+    }
+    
+    .method.get { background: var(--info); }
+    .method.post { background: var(--success); }
+    .method.put { background: var(--warning); }
+    .method.delete { background: var(--error); }
+    
+    .path {
+      font-family: 'Consolas', monospace;
+      font-size: 0.9rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'Consolas', monospace;
+      font-size: 0.9rem;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .response {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .response pre {
+      font-family: 'Consolas', monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .status-badge.success { background: var(--success); }
+    .status-badge.error { background: var(--error); }
+    .status-badge.pending { background: var(--warning); }
+    
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .tab {
+      padding: 0.5rem 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tab:hover, .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    
+    .hidden { display: none; }
+    
+    .info-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--info);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .info-box code {
+      font-family: 'Consolas', monospace;
+      color: var(--info);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Node.js API Tester</h1>
+      <p>Interactive REST API testing interface</p>
+    </header>
+    
+    <div class="info-box">
+      <strong>💡 Quick Start:</strong> Select an endpoint from the list, configure your request, and click <code>Send Request</code>
+    </div>
+    
+    <div class="grid">
+      <!-- Endpoints List -->
+      <div class="card">
+        <h2>📍 Endpoints</h2>
+        <div class="endpoint-list" id="endpointList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      
+      <!-- Request/Response -->
+      <div class="card">
+        <h2>📡 Request Builder</h2>
+        
+        <div class="tabs">
+          <div class="tab active" data-tab="request">Request</div>
+          <div class="tab" data-tab="response">Response</div>
+        </div>
+        
+        <div id="requestPanel">
+          <div class="form-group">
+            <label>Method</label>
+            <input type="text" id="method" readonly>
+          </div>
+          
+          <div class="form-group">
+            <label>URL Path</label>
+            <input type="text" id="urlPath" placeholder="/api/endpoint">
+          </div>
+          
+          <div class="form-group" id="idGroup">
+            <label>ID (for :id routes)</label>
+            <input type="number" id="resourceId" placeholder="1">
+          </div>
+          
+          <div class="form-group" id="bodyGroup">
+            <label>Request Body (JSON)</label>
+            <textarea id="requestBody" placeholder='{"name": "Example"}'></textarea>
+          </div>
+          
+          <button class="btn" id="sendBtn">
+            🚀 Send Request
+          </button>
+        </div>
+        
+        <div id="responsePanel" class="hidden">
+          <div id="statusBadge" class="status-badge pending">Pending</div>
+          <div class="response">
+            <pre id="responseContent">Waiting for request...</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // API Endpoints configuration
+    const endpoints = [
+      { method: 'GET', path: '/', name: 'Index' },
+      { method: 'GET', path: '/faker', name: 'Faker Data' },
+      { method: 'GET', path: '/posts', name: 'Get All Posts' },
+      { method: 'GET', path: '/posts/:id', name: 'Get Post by ID', hasId: true },
+      { method: 'GET', path: '/users', name: 'Get All Users' },
+      { method: 'GET', path: '/users/:id', name: 'Get User by ID', hasId: true },
+      { method: 'GET', path: '/categories', name: 'Get All Categories' },
+      { method: 'GET', path: '/categories/:id', name: 'Get Category by ID', hasId: true },
+      { method: 'POST', path: '/categories', name: 'Create Category', hasBody: true },
+      { method: 'PUT', path: '/categories/:id', name: 'Update Category', hasId: true, hasBody: true },
+      { method: 'DELETE', path: '/categories/:id', name: 'Delete Category', hasId: true },
+      { method: 'GET', path: '/notes', name: 'Get All Notes' },
+      { method: 'GET', path: '/notes/:id', name: 'Get Note by ID', hasId: true },
+      { method: 'POST', path: '/notes', name: 'Create Note', hasBody: true },
+      { method: 'PUT', path: '/notes/:id', name: 'Update Note', hasId: true, hasBody: true },
+      { method: 'DELETE', path: '/notes/:id', name: 'Delete Note', hasId: true },
+    ];
+    
+    // Default body templates
+    const bodyTemplates = {
+      categories: { name: 'New Category' },
+      notes: { title: 'New Note', content: 'Note content', categoryId: 1 },
+    };
+    
+    let selectedEndpoint = null;
+    
+    // Render endpoint list
+    function renderEndpoints() {
+      const list = document.getElementById('endpointList');
+      list.innerHTML = endpoints.map((ep, index) => `
+        <div class="endpoint ${selectedEndpoint === index ? 'active' : ''}" 
+             onclick="selectEndpoint(${index})">
+          <span class="method ${ep.method.toLowerCase()}">${ep.method}</span>
+          <span class="path">${ep.path}</span>
+        </div>
+      `).join('');
+    }
+    
+    // Select endpoint
+    window.selectEndpoint = function(index) {
+      selectedEndpoint = index;
+      const ep = endpoints[index];
+      
+      // Update UI
+      document.getElementById('method').value = ep.method;
+      document.getElementById('urlPath').value = ep.path;
+      
+      // Show/hide ID field
+      document.getElementById('idGroup').style.display = ep.hasId ? 'block' : 'none';
+      
+      // Show/hide body field
+      document.getElementById('bodyGroup').style.display = ep.hasBody ? 'block' : 'none';
+      
+      // Set default body
+      if (ep.hasBody) {
+        const templateKey = ep.path.includes('categories') ? 'categories' : 
+                           ep.path.includes('notes') ? 'notes' : null;
+        document.getElementById('requestBody').value = templateKey ? 
+          JSON.stringify(bodyTemplates[templateKey], null, 2) : '{}';
+      }
+      
+      renderEndpoints();
+    };
+    
+    // Send request
+    document.getElementById('sendBtn').addEventListener('click', async function() {
+      const method = document.getElementById('method').value;
+      let url = document.getElementById('urlPath').value;
+      const id = document.getElementById('resourceId').value;
+      const body = document.getElementById('requestBody').value;
+      
+      // Replace :id with actual ID
+      if (url.includes(':id') && id) {
+        url = url.replace(':id', id);
+      }
+      
+      const statusBadge = document.getElementById('statusBadge');
+      const responseContent = document.getElementById('responseContent');
+      const responsePanel = document.getElementById('responsePanel');
+      
+      // Show response panel
+      responsePanel.classList.remove('hidden');
+      statusBadge.className = 'status-badge pending';
+      statusBadge.textContent = 'Sending...';
+      responseContent.textContent = 'Loading...';
+      
+      try {
+        const options = {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+        };
+        
+        if (['POST', 'PUT', 'PATCH'].includes(method)) {
+          options.body = body;
+        }
+        
+        const response = await fetch(url, options);
+        const data = await response.json();
+        
+        statusBadge.className = `status-badge ${response.ok ? 'success' : 'error'}`;
+        statusBadge.textContent = `${response.status} ${response.statusText}`;
+        responseContent.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        statusBadge.className = 'status-badge error';
+        statusBadge.textContent = 'Error';
+        responseContent.textContent = `Error: ${error.message}\n\nMake sure the server is running on http://localhost:3000`;
+      }
+    });
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabName = this.dataset.tab;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        if (tabName === 'request') {
+          document.getElementById('requestPanel').classList.remove('hidden');
+          document.getElementById('responsePanel').classList.add('hidden');
+        } else {
+          document.getElementById('requestPanel').classList.add('hidden');
+          document.getElementById('responsePanel').classList.remove('hidden');
+        }
+      });
+    });
+    
+    // Initialize
+    renderEndpoints();
+    selectEndpoint(0);
+  </script>
+</body>
+</html>
