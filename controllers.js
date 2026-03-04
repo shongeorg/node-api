@@ -59,7 +59,6 @@ export const usersController = {
   },
 };
 
-// Categories Controllers
 export const categoriesController = {
   getAll: async (params, body, method) => {
     const categories = await prisma.category.findMany({
