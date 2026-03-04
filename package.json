@@ -1,14 +1,17 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "build": "node server.js",
-    "test": "jest",
-    "seeds": "node ./prisma/seeds.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "build": "node src/server.js",
+    "test": "node tests/runner.js unit",
+    "test:integration": "node tests/runner.js integration",
+    "test:all": "npm run test && npm run test:integration",
+    "seeds": "node prisma/seeds.js",
+    "cli": "node src/cli.js"
   },
   "keywords": [],
   "author": "",
